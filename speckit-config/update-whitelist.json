@@ -1,0 +1,53 @@
+{
+  "_comment": "SpecKit 增量更新白名单配置 | 此文件定义哪些文件会被 /speckit.updateweb3 命令更新",
+  "_version": "1.0.0",
+  "_last_updated": "2025-01-19",
+
+  "whitelist": {
+    "agents": [
+      ".claude/agents/api-analyzer.md",
+      ".claude/agents/bash-python-compare.md",
+      ".claude/agents/code-architect.md",
+      ".claude/agents/code-documenter.md",
+      ".claude/agents/code-explorer.md",
+      ".claude/agents/code-quality-scorer.md",
+      ".claude/agents/code-reviewer.md",
+      ".claude/agents/code-structure-analyzer.md",
+      ".claude/agents/data-flow-analyzer.md",
+      ".claude/agents/dependency-analyzer.md",
+      ".claude/agents/markdown-generator-zh.md",
+      ".claude/agents/request-flow-analyzer.md"
+    ],
+
+    "commands": [
+      ".claude/commands/speckit.analyze.md",
+      ".claude/commands/speckit.checklist.md",
+      ".claude/commands/speckit.clarify.md",
+      ".claude/commands/speckit.constitution.md",
+      ".claude/commands/speckit.implement.md",
+      ".claude/commands/speckit.knowledge.md",
+      ".claude/commands/speckit.plan.md",
+      ".claude/commands/speckit.specify.md",
+      ".claude/commands/speckit.summary.md",
+      ".claude/commands/speckit.tasks.md",
+      ".claude/commands/speckit.taskstoissues.md",
+      ".claude/commands/speckit.updateweb3.md",
+      ".claude/commands/simplesdd/feature-dev.md"
+    ],
+
+    "scripts": [
+      ".specify/scripts/python/common.py",
+      ".specify/scripts/python/load-knowledge.py",
+      ".specify/knowledge-config.json"
+      
+    ],
+
+    "templates": [
+      ".specify/templates/spec-template.md",
+      ".specify/templates/plan-template.md",
+      ".specify/templates/tasks-template.md",
+      ".specify/templates/checklist-template.md",
+      ".specify/templates/summary-template.md"
+    ]
+  }
+}

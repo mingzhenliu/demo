@@ -1,0 +1,87 @@
+{
+  "_comment": "SpecKit 增量更新配置 v2.0",
+  "_version": "2.0.0",
+  "_description": "从模板仓库增量更新 SpecKit 核心文件的配置",
+
+  "sync_directories": [
+    {
+      "path": ".claude/agents",
+      "mode": "auto",
+      "description": "Agent 定义文件"
+    },
+    {
+      "path": ".claude/commands",
+      "mode": "auto",
+      "description": "命令定义文件"
+    },
+    {
+      "path": ".claude/hooks",
+      "mode": "auto",
+      "description": "Hook 定义文件"
+    },
+    {
+      "path": ".claude/skills",
+      "mode": "auto",
+      "description": "Skill 定义文件"
+    },
+    {
+      "path": ".specify/scripts",
+      "mode": "auto",
+      "description": "Python 脚本"
+    },
+    {
+      "path": ".specify/templates",
+      "mode": "auto",
+      "description": "模板文件"
+    }
+  ],
+
+  "exclude_directories": [
+    {
+      "path": ".claude/docs",
+      "reason": "文档目录不需要同步"
+    }
+  ],
+
+  "delete_list": [
+    "*.deprecated.md",
+    ".claude/commands/legacy-*",
+    ".claude/agents/old-*",
+    ".claude/commands/speckit.summary-v2.md",
+    ".claude/AGENTS.md"
+  ],
+
+  "file_blacklist": [
+    "*.local.md",
+    "*.backup.*",
+    ".DS_Store",
+    "Thumbs.db",
+    "*.swp",
+    "*.swo",
+    "*~",
+    "setting*.json"
+  ],
+
+  "new_file_policy": {
+    "enabled": true,
+    "description": "是否同步项目目录中不存在的新文件"
+  },
+
+  "local_overrides": {
+    "enabled": true,
+    "marker_file": ".speckit-local",
+    "header_markers": [
+      "@speckit-local",
+      "# speckit: local",
+      "<!-- speckit-local -->",
+      "<!-- @speckit-local -->"
+    ],
+    "description": "本地覆盖保护机制"
+  },
+
+  "backup": {
+    "enabled": true,
+    "backup_dir": ".speckit-backup",
+    "description": "更新前备份被覆盖的文件"
+  }
+}
