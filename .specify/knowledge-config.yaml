@@ -1,0 +1,589 @@
+# ═══════════════════════════════════════════════════════════════
+# SpecKit 知识库配置文件
+# 版本：2.0.0 | 更新日期：2025-01-05
+# 说明：配置驱动的知识库加载，每个文档包含中文说明和关键约束
+# ═══════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════
+# 知识库路径配置
+# ═══════════════════════════════════════════════════════════════
+
+knowledge_sources:
+  L0:
+    description: "企业级知识库 - 定义不可覆盖的强制约束"
+    path: ".knowledge/upstream/L0-enterprise"
+    priority: 1
+    on_missing: "error"  # 缺失时报错并阻止流程
+
+  L1:
+    description: "项目级知识库 - 定义项目特定的规范和约定"
+    path: ".knowledge/upstream/L1-project"
+    priority: 2
+    on_missing: "warn"   # 缺失时警告但可继续
+
+  L2:
+    description: "仓库级知识库 - 定义本仓库特有的上下文"
+    path: ".knowledge"
+    priority: 3
+    on_missing: "skip"   # 缺失时静默跳过
+
+# ═══════════════════════════════════════════════════════════════
+# 命令知识库配置（以命令文档为准）
+# ═══════════════════════════════════════════════════════════════
+
+command_knowledge:
+  # ─────────────────────────────────────────────────────────────
+  # /speckit.specify - 功能规格创建
+  # ─────────────────────────────────────────────────────────────
+  specify:
+    description: "功能规格创建 - 从自然语言描述创建功能规范"
+    documents:
+      - level: L1
+        path: "business/glossary.md"
+        description: "术语词典 - 定义项目标准术语，确保规格中术语一致性"
+        required: true
+        constraints:
+          - "必须使用术语词典中的标准术语"
+          - "禁止混用同义词（如'用户'不可写成'客户'，除非词典明确允许）"
+          - "新术语需在规格中明确定义，并建议纳入词典"
+
+      - level: L1
+        path: "business/domain-model.md"
+        description: "领域模型 - 定义业务实体、属性和关系"
+        required: true
+        glob_pattern: "business/domain-*.md"  # 支持多个领域模型文件
+        constraints:
+          - "不得重新定义已有实体"
+          - "新实体需与现有模型关系清晰"
+          - "实体属性需符合领域模型定义"
+          - "实体关系需遵循已有的聚合边界"
+
+      - level: L1
+        path: "business/rules.md"
+        description: "业务规则 - 定义业务逻辑约束和校验规则"
+        required: false
+
+      - level: L2
+        path: "context.md"
+        description: "仓库上下文 - 定义本仓库的职责边界和范围"
+        required: true
+        constraints:
+          - "功能边界必须在本仓库职责范围内"
+          - "跨仓库依赖需在规格中明确标注"
+          - "超出边界的功能需拆分到对应仓库"
+
+  # ─────────────────────────────────────────────────────────────
+  # /speckit.plan - 实施计划生成
+  # ─────────────────────────────────────────────────────────────
+  plan:
+    description: "实施计划生成 - 生成技术实施方案和设计制品"
+    documents:
+      # L0 企业级（必须）
+      - level: L0
+        path: "constitution/architecture-principles.md"
+        description: "架构原则 - 定义系统架构的强制约束和设计原则"
+        required: true
+        critical: true
+        constraints:
+          - "必须符合分层架构原则"
+          - "禁止跨层直接调用"
+          - "组件间必须通过接口通信"
+
+      - level: L0
+        path: "constitution/security-baseline.md"
+        description: "安全基线 - 定义安全编码的红线和强制要求"
+        required: true
+        critical: true
+        constraints:
+          - "所有输入必须校验"
+          - "敏感操作必须有审计日志"
+          - "认证授权必须遵循最小权限原则"
+
+      - level: L0
+        path: "standards/api-design-guide.md"
+        description: "API 设计规范 - 定义 RESTful API 的设计标准"
+        required: true
+        constraints:
+          - "API 必须符合 RESTful 设计原则"
+          - "必须定义统一的错误响应格式"
+          - "必须提供 API 版本控制策略"
+
+      - level: L0
+        path: "standards/testing-standards.md"
+        description: "测试规范 - 定义测试策略和覆盖率要求"
+        required: true
+        constraints:
+          - "必须定义测试策略（单元/集成/E2E）"
+          - "核心业务逻辑测试覆盖率 >= 80%"
+          - "必须遵循 TDD 或测试先行原则"
+
+      # L1 项目级（必须）
+      - level: L1
+        path: "architecture/tech-stack.md"
+        description: "项目技术栈 - 定义项目使用的技术框架和版本"
+        required: true
+        constraints:
+          - "技术选型必须与项目技术栈一致"
+          - "新技术引入需说明选型理由"
+
+      - level: L1
+        path: "standards/coding.md"
+        description: "项目编码规范 - 定义项目特定的编码约定"
+        required: true
+
+      # L0 可选
+      - level: L0
+        path: "technology-radar/hold.md"
+        description: "禁用技术列表 - 列出禁止使用的技术和原因"
+        required: false
+        constraints:
+          - "禁止使用 HOLD 列表中的技术"
+          - "如必须使用需特别审批"
+
+      - level: L0
+        path: "technology-radar/adopt.md"
+        description: "推荐技术列表 - 列出推荐使用的技术"
+        required: false
+
+      # L1 可选
+      - level: L1
+        path: "architecture/decisions/*.md"
+        description: "架构决策记录 (ADR) - 记录重要的架构决策"
+        required: false
+        glob_pattern: "architecture/decisions/*.md"
+
+      # L2 可选
+      - level: L2
+        path: "code-derived/module_tree.json"
+        description: "模块结构 - 仓库的模块组织结构"
+        required: false
+
+      - level: L2
+        path: "code-derived/overview.md"
+        description: "仓库概览 - 仓库的整体架构和功能概述"
+        required: false
+
+      - level: L2
+        path: "context.md"
+        description: "仓库上下文 - 定义本仓库的职责边界"
+        required: false
+
+  # ─────────────────────────────────────────────────────────────
+  # /speckit.implement - 代码实现
+  # ─────────────────────────────────────────────────────────────
+  implement:
+    description: "代码实现 - 执行 tasks.md 中定义的任务"
+    documents:
+      # L0 AI 编码约束（最高优先级）
+      - level: L0
+        path: "ai-coding/ai-coding-policy.md"
+        description: "AI 编码策略 - 定义 AI 生成代码的强制约束（红线）"
+        required: true
+        critical: true
+        constraints:
+          - "AI 生成的代码必须经过人工 Review 后方可合并"
+          - "AI 不得自动提交到 main/master/release 分支"
+          - "AI 不得修改安全相关配置文件（.env、secrets、credentials）"
+          - "AI 生成的测试必须有有效断言"
+          - "禁止 AI 自动跳过或删除失败的测试"
+
+      - level: L0
+        path: "constitution/security-baseline.md"
+        description: "安全基线 - 定义安全编码的红线要求"
+        required: true
+        critical: true
+        constraints:
+          - "禁止硬编码密码、API Key、Token"
+          - "禁止 SQL 字符串拼接（必须使用参数化查询）"
+          - "所有外部输入必须校验"
+          - "敏感数据必须加密存储"
+          - "错误处理不得暴露敏感信息"
+
+      # L0 语言编码规范（动态加载）
+      - level: L0
+        path: "standards/coding-standards/java.md"
+        description: "Java 编码规范 - Java 语言的编码标准"
+        required: false
+        dynamic: true
+        condition: "language == 'java'"
+
+      - level: L0
+        path: "standards/coding-standards/typescript.md"
+        description: "TypeScript 编码规范 - TypeScript 语言的编码标准"
+        required: false
+        dynamic: true
+        condition: "language == 'typescript'"
+
+      - level: L0
+        path: "standards/coding-standards/python.md"
+        description: "Python 编码规范 - Python 语言的编码标准"
+        required: false
+        dynamic: true
+        condition: "language == 'python'"
+
+      # L1 项目规范（必须）
+      - level: L1
+        path: "standards/coding.md"
+        description: "项目编码规范 - 项目特定的编码约定和风格"
+        required: true
+        constraints:
+          - "代码风格必须符合项目规范"
+          - "命名约定必须一致"
+
+      - level: L1
+        path: "standards/api.md"
+        description: "项目 API 规范 - 项目特定的 API 设计约定"
+        required: true
+        constraints:
+          - "API 设计必须符合项目规范"
+          - "错误码和响应格式必须统一"
+
+      - level: L1
+        path: "standards/testing.md"
+        description: "项目测试规范 - 项目特定的测试要求"
+        required: true
+        constraints:
+          - "测试命名和组织必须符合规范"
+          - "必须包含有效的断言"
+
+      # L2 模块文档（动态加载）
+      - level: L2
+        path: "code-derived/*.md"
+        description: "模块文档 - 模块的详细文档，确保代码符合现有模式"
+        required: false
+        dynamic: true
+        glob_pattern: "code-derived/*.md"
+
+  # ─────────────────────────────────────────────────────────────
+  # /speckit.constitution - 项目章程创建/更新
+  # ─────────────────────────────────────────────────────────────
+  constitution:
+    description: "项目章程创建/更新 - 创建或更新项目的治理章程"
+    documents:
+      - level: L0
+        path: "constitution/constitution-template.md"
+        description: "企业级宪章模板 - 提供章程的标准结构和必要章节"
+        required: true
+        critical: true
+
+      - level: L0
+        path: "constitution/architecture-principles.md"
+        description: "架构原则 - 企业级架构约束（不可覆盖）"
+        required: true
+        critical: true
+        constraints:
+          - "项目章程必须包含 L0 定义的所有核心原则"
+          - "架构约束不得与 L0 冲突"
+          - "只能扩展，不能弱化 L0 原则"
+
+      - level: L0
+        path: "constitution/security-baseline.md"
+        description: "安全红线 - 企业级安全约束（不可覆盖）"
+        required: true
+        critical: true
+        constraints:
+          - "安全红线条款只能扩展，不能弱化"
+          - "安全相关条款必须 >= L0 要求"
+
+      - level: L0
+        path: "constitution/compliance-requirements.md"
+        description: "合规要求 - 企业级合规约束参考"
+        required: false
+
+  # ─────────────────────────────────────────────────────────────
+  # /speckit.tasks - 任务列表生成
+  # ─────────────────────────────────────────────────────────────
+  tasks:
+    description: "任务列表生成 - 基于设计制品生成可执行的任务列表"
+    documents:
+      - level: L2
+        path: "code-derived/module_tree.json"
+        description: "模块结构 - 用于验证任务文件路径的正确性"
+        required: false
+
+      - level: L2
+        path: "code-derived/overview.md"
+        description: "仓库概览 - 用于理解项目结构"
+        required: false
+
+  # ─────────────────────────────────────────────────────────────
+  # /speckit.analyze - 跨制品一致性分析
+  # ─────────────────────────────────────────────────────────────
+  analyze:
+    description: "跨制品分析 - 分析 spec/plan/tasks 的一致性和质量"
+    documents:
+      - level: L0
+        path: "constitution/architecture-principles.md"
+        description: "架构原则 - 用于验证设计是否符合架构约束"
+        required: true
+        critical: true
+
+      - level: L1
+        path: "business/glossary.md"
+        description: "术语词典 - 用于验证术语使用的一致性"
+        required: true
+
+      - level: L0
+        path: "constitution/security-baseline.md"
+        description: "安全基线 - 用于验证安全合规性"
+        required: false
+
+  # ─────────────────────────────────────────────────────────────
+  # /speckit.clarify - 需求澄清
+  # ─────────────────────────────────────────────────────────────
+  clarify:
+    description: "需求澄清 - 识别规格中的歧义并通过问答澄清"
+    documents:
+      - level: L1
+        path: "business/glossary.md"
+        description: "术语词典 - 用于术语理解和一致性检查"
+        required: false
+
+      - level: L1
+        path: "business/rules.md"
+        description: "业务规则 - 用于判断澄清答案是否符合业务规则"
+        required: false
+
+      - level: L1
+        path: "business/workflows/*.md"
+        description: "业务流程 - 用于参考现有业务流程"
+        required: false
+        glob_pattern: "business/workflows/*.md"
+
+  # ─────────────────────────────────────────────────────────────
+  # /speckit.checklist - 检查清单生成
+  # ─────────────────────────────────────────────────────────────
+  checklist:
+    description: "检查清单生成 - 为功能生成需求质量检查清单"
+    # 无需加载知识库，从 spec/plan 生成
+    documents: []
+    types:
+      security:
+        description: "安全检查清单"
+        documents:
+          - level: L0
+            path: "constitution/security-baseline.md"
+            description: "安全基线 - 用于生成安全检查项"
+            required: true
+      testing:
+        description: "测试检查清单"
+        documents:
+          - level: L0
+            path: "standards/testing-standards.md"
+            description: "测试规范 - 用于生成测试检查项"
+            required: true
+          - level: L1
+            path: "standards/testing.md"
+            description: "项目测试规范"
+            required: false
+      api:
+        description: "API 检查清单"
+        documents:
+          - level: L0
+            path: "standards/api-design-guide.md"
+            description: "API 设计规范 - 用于生成 API 检查项"
+            required: true
+          - level: L1
+            path: "standards/api.md"
+            description: "项目 API 规范"
+            required: false
+      coding:
+        description: "编码检查清单"
+        documents:
+          - level: L0
+            path: "standards/coding-standards/*.md"
+            description: "编码规范 - 用于生成编码检查项"
+            required: true
+            glob_pattern: "standards/coding-standards/*.md"
+          - level: L1
+            path: "standards/coding.md"
+            description: "项目编码规范"
+            required: false
+
+  # ─────────────────────────────────────────────────────────────
+  # /speckit.summary - 工作总结生成
+  # ─────────────────────────────────────────────────────────────
+  summary:
+    description: "工作总结生成 - 生成提交前的工作总结"
+    # 无需加载知识库
+    documents: []
+
+# ═══════════════════════════════════════════════════════════════
+# Feature-Dev 插件知识库配置
+# ═══════════════════════════════════════════════════════════════
+
+feature_dev:
+  description: "Feature-Dev 7 阶段工作流知识库配置"
+
+  phase1_discovery:
+    description: "阶段1：发现 - 理解需要构建什么"
+    documents:
+      - level: L1
+        path: "business/glossary.md"
+        description: "术语词典 - 确保术语规范"
+        required: true
+      - level: L2
+        path: "context.md"
+        description: "仓库上下文 - 确认功能边界"
+        required: true
+
+  phase2_exploration:
+    description: "阶段2：代码库探索 - 理解现有代码和模式"
+    documents:
+      - level: L2
+        path: "code-derived/module_tree.json"
+        description: "模块结构"
+        required: true
+      - level: L2
+        path: "code-derived/overview.md"
+        description: "仓库概览"
+        required: true
+      - level: L1
+        path: "architecture/service-catalog.md"
+        description: "服务目录"
+        required: false
+
+  phase3_clarification:
+    description: "阶段3：澄清问题 - 填补空白并解决歧义"
+    documents:
+      - level: L1
+        path: "business/rules.md"
+        description: "业务规则"
+        required: true
+      - level: L1
+        path: "business/domain-model.md"
+        description: "领域模型"
+        required: true
+      - level: L1
+        path: "business/workflows/*.md"
+        description: "业务流程"
+        required: false
+        glob_pattern: "business/workflows/*.md"
+
+  phase4_architecture:
+    description: "阶段4：架构设计 - 设计实现方法（最关键阶段）"
+    documents:
+      - level: L0
+        path: "constitution/architecture-principles.md"
+        description: "架构原则（底线）"
+        required: true
+        critical: true
+      - level: L0
+        path: "constitution/security-baseline.md"
+        description: "安全红线"
+        required: true
+        critical: true
+      - level: L0
+        path: "technology-radar/hold.md"
+        description: "禁用技术"
+        required: true
+        critical: true
+      - level: L0
+        path: "technology-radar/adopt.md"
+        description: "推荐技术"
+        required: true
+      - level: L1
+        path: "architecture/tech-stack.md"
+        description: "项目技术栈"
+        required: true
+      - level: L1
+        path: "architecture/decisions/*.md"
+        description: "现有 ADR"
+        required: false
+        glob_pattern: "architecture/decisions/*.md"
+
+  phase5_implementation:
+    description: "阶段5：实现 - 构建功能"
+    documents:
+      - level: L0
+        path: "ai-coding/ai-coding-policy.md"
+        description: "AI 编码约束"
+        required: true
+        critical: true
+      - level: L0
+        path: "constitution/security-baseline.md"
+        description: "安全红线"
+        required: true
+      - level: L0
+        path: "standards/testing-standards.md"
+        description: "测试规范"
+        required: true
+      - level: L1
+        path: "standards/coding.md"
+        description: "项目编码规范"
+        required: true
+      - level: L0
+        path: "standards/coding-standards/*.md"
+        description: "语言编码规范"
+        required: false
+        glob_pattern: "standards/coding-standards/*.md"
+      - level: L2
+        path: "code-derived/*.md"
+        description: "模块文档"
+        required: false
+        glob_pattern: "code-derived/*.md"
+
+  phase6_review:
+    description: "阶段6：质量审查 - 确保代码质量"
+    documents:
+      - level: L0
+        path: "constitution/security-baseline.md"
+        description: "安全审查"
+        required: true
+        critical: true
+      - level: L0
+        path: "standards/api-design-guide.md"
+        description: "API 规范"
+        required: true
+      - level: L1
+        path: "standards/testing.md"
+        description: "测试标准"
+        required: true
+      - level: L1
+        path: "standards/coding.md"
+        description: "编码规范"
+        required: false
+
+  phase7_summary:
+    description: "阶段7：总结 - 记录完成的工作"
+    documents:
+      - level: L1
+        path: "business/glossary.md"
+        description: "术语验证"
+        required: false
+
+# ═══════════════════════════════════════════════════════════════
+# 错误代码定义
+# ═══════════════════════════════════════════════════════════════
+
+error_codes:
+  KNOW-001:
+    meaning: "L0 知识库文档缺失"
+    action: "阻止流程"
+    severity: "CRITICAL"
+  KNOW-002:
+    meaning: "L1 知识库文档缺失"
+    action: "警告"
+    severity: "WARNING"
+  KNOW-003:
+    meaning: "L2 知识库文档缺失"
+    action: "跳过"
+    severity: "INFO"
+  KNOW-004:
+    meaning: "知识库配置文件不存在"
+    action: "阻止流程"
+    severity: "CRITICAL"
+
+# ═══════════════════════════════════════════════════════════════
+# Token 优化配置
+# ═══════════════════════════════════════════════════════════════
+
+optimization:
+  cache:
+    enabled: true
+    ttl_minutes: 30
+  lazy_load: true
+  summarize:
+    enabled: true
+    max_tokens_per_doc: 2000
+  total_budget: 8000
